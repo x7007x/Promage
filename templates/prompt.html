@@ -1,0 +1,139 @@
+{% set meta = meta %}
+{% extends "base.html" %}
+{% block content %}
+<main class="pt-40 max-w-7xl mx-auto px-4 sm:px-6 pb-12">
+    <div class="mt-2 flex flex-wrap items-center justify-between gap-4">
+        <a href="/#gallery" class="inline-flex items-center gap-2 rounded-full border border-neutral-300 dark:border-neutral-700 bg-white/80 dark:bg-white/10 px-4 py-2 text-base">
+            <i data-lucide="arrow-left" class="h-5 w-5"></i>
+            <span>Back to Gallery</span>
+        </a>
+        <div class="inline-flex items-center gap-2">
+            <button class="like-btn inline-flex items-center gap-2 rounded-full border border-neutral-300 dark:border-neutral-700 bg-white/90 dark:bg-neutral-900/80 px-4 py-2 text-base" data-like-id="{{ item.id }}" aria-label="Like">
+                <i data-lucide="heart" class="h-5 w-5 {% if liked %}text-rose-600{% endif %}"></i>
+                <span class="like-count" data-like-count="{{ item.id }}">{{ item.likes }}</span>
+            </button>
+            <div class="inline-flex items-center gap-2 rounded-full border border-neutral-300 dark:border-neutral-700 bg-white/90 dark:bg-neutral-900/80 px-4 py-2 text-base">
+                <i data-lucide="eye" class="h-5 w-5"></i>
+                <span class="view-count" data-view-count="{{ item.id }}">{{ item.views }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-8 grid gap-6 md:grid-cols-2">
+        <div class="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white/60 dark:bg-white/5 overflow-hidden">
+            <img src="{{ item.src }}" alt="{{ item.alt }}" class="w-full h-auto object-contain">
+        </div>
+        <div class="grid gap-5 content-start">
+            <h1 class="text-3xl sm:text-4xl font-bold tracking-tight">{{ item.title }} — Prompt</h1>
+
+            <div class="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white/60 dark:bg-white/5 p-4">
+                <div class="text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Prompt</div>
+                <pre class="mt-2 whitespace-pre-wrap text-base leading-relaxed">{{ item.prompt }}</pre>
+            </div>
+
+            <div class="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white/60 dark:bg-white/5 p-4">
+                <div class="text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Negative Prompt</div>
+                <pre class="mt-2 whitespace-pre-wrap text-base leading-relaxed">{{ item.negative }}</pre>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2">
+                <button id="copyPrompt" class="inline-flex items-center gap-2 rounded-full border border-neutral-300 dark:border-neutral-700 bg-white/80 dark:bg-white/10 px-4 py-2 text-base">
+                    <i data-lucide="copy" class="h-5 w-5"></i>
+                    <span>Copy Prompt</span>
+                </button>
+
+                <a href="{{ item.src }}" target="_blank" rel="noopener" class="inline-flex items-center gap-2 rounded-full border border-neutral-300 dark:border-neutral-700 bg-white/80 dark:bg-white/10 px-4 py-2 text-base">
+                    <i data-lucide="external-link" class="h-5 w-5"></i>
+                    <span>Open Image</span>
+                </a>
+
+                <button id="shareBtn" class="inline-flex items-center gap-2 rounded-full border border-neutral-300 dark:border-neutral-700 bg-white/80 dark:bg-white/10 px-4 py-2 text-base">
+                    <i data-lucide="share-2" class="h-5 w-5"></i>
+                    <span>Share</span>
+                </button>
+            </div>
+
+            <!--aside class="w-full rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white/70 dark:bg-neutral-900/70 p-5 flex items-center justify-center">
+                <div class="w-full text-center text-sm sm:text-base text-neutral-600 dark:text-neutral-400">Advertisement In-Content</div>
+            </aside-->
+        </div>
+    </div>
+
+    <div class="mt-8">
+        <aside class="w-full rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white/70 dark:bg-neutral-900/70 p-6 flex items-center justify-center">
+            <div class="w-full text-center text-sm sm:text-base text-neutral-600 dark:text-neutral-400">Advertisement 970×250</div>
+        </aside>
+    </div>
+
+    <script>
+        const copyBtn = document.getElementById('copyPrompt')
+        const shareBtn = document.getElementById('shareBtn')
+        const likeBtn = document.querySelector('[data-like-id="{{ item.id }}"]')
+        const likeCountEl = document.querySelector('[data-like-count="{{ item.id }}"]')
+        const viewCountEl = document.querySelector('[data-view-count="{{ item.id }}"]')
+
+        async function likeImage() {
+            try {
+                const res = await fetch('/api/like', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: '{{ item.id }}' })
+                })
+                const json = await res.json()
+                if (json.ok) {
+                    likeCountEl.textContent = json.likes
+                    const icon = likeBtn.querySelector('svg')
+                    if (icon) icon.classList.add('text-rose-600')
+                    if (window.showAlert) window.showAlert('Thanks for the like', 'success')
+                } else if (json.error === 'already_liked') {
+                    if (window.showAlert) window.showAlert('You already liked this image', 'info')
+                } else {
+                    if (window.showAlert) window.showAlert('Something went wrong', 'error')
+                }
+            } catch (e) {
+                if (window.showAlert) window.showAlert('Network error', 'error')
+            }
+        }
+
+        async function refreshStats() {
+            try {
+                const res = await fetch('/api/stats/{{ item.id }}')
+                const json = await res.json()
+                if (json && json.ok && viewCountEl) {
+                    viewCountEl.textContent = json.views
+                }
+            } catch (e) {}
+        }
+
+        if (likeBtn) likeBtn.addEventListener('click', likeImage)
+
+        if (copyBtn) {
+            copyBtn.addEventListener('click', async () => {
+                try {
+                    const text = `{{ item.prompt }}`
+                    await navigator.clipboard.writeText(text)
+                    if (window.showAlert) window.showAlert('Prompt copied', 'success')
+                } catch (e) {
+                    if (window.showAlert) window.showAlert('Copy failed', 'error')
+                }
+            })
+        }
+
+        if (shareBtn) {
+            shareBtn.addEventListener('click', async () => {
+                const url = '{{ meta.url }}'
+                try {
+                    if (navigator.share) {
+                        await navigator.share({ title: document.title, text: '{{ item.title }}', url })
+                        if (window.showAlert) window.showAlert('Shared', 'success')
+                    } else {
+                        await navigator.clipboard.writeText(url)
+                        if (window.showAlert) window.showAlert('Link copied', 'success')
+                    }
+                } catch (e) {}
+            })
+        }
+
+        refreshStats()
+    </script>
+{% endblock %}
