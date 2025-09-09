@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en" class="h-full scroll-smooth">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ meta.title }}</title>
+
+    <meta name="description" content="{{ meta.description }}">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)">
+    <meta name="color-scheme" content="light dark">
+
+    <link rel="canonical" href="{{ meta.url }}">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/site.webmanifest">
+
+    <meta property="og:title" content="{{ meta.title }}">
+    <meta property="og:description" content="{{ meta.description }}">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ meta.url }}">
+    <meta property="og:site_name" content="{{ site.name }}">
+    <meta property="og:image" content="{{ meta.image }}">
+    <meta property="og:locale" content="en_US">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ meta.title }}">
+    <meta name="twitter:description" content="{{ meta.description }}">
+    <meta name="twitter:image" content="{{ meta.image }}">
+    <script type="application/ld+json">
+        {
+        "@context":"https://schema.org",
+        "@type":"WebSite",
+        "name":"{{ site.name }}",
+        "url":"{{ site.base_url }}"
+        }
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes marquee-horizontal {
+            0% {
+                transform: translateX(0%);
+            }
+    
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+    
+        .marquee-container {
+            overflow: hidden;
+            width: 100%;
+        }
+    
+        .marquee {
+            display: flex;
+            flex-shrink: 0;
+            animation: marquee-horizontal 20s linear infinite;
+            min-width: 200%;
+        }
+    
+        .marquee-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding-left: 2rem;
+            flex-shrink: 0;
+            width: auto;
+        }
+    
+        .marquee-item-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-radius: 9999px;
+            padding: 0.5rem 1rem;
+            border-width: 1px;
+            border-color: #d1d5db;
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+    
+        .dark .marquee-item-container {
+            border-color: #262626;
+            background-color: rgba(38, 38, 38, 0.85);
+        }
+    
+        .menu-transition {
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+            transform: translateY(-20px);
+            opacity: 0;
+        }
+    
+        .menu-transition.open {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['ui-sans-serif','-apple-system','SF Pro Text','SF Pro Display','Segoe UI','Roboto','Helvetica','Arial']
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="min-h-full bg-neutral-50 text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100 antialiased">
+    <a href="#gallery" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:px-3 focus:py-2 focus:bg-white/80 dark:focus:bg-neutral-900/80 border border-black/10 dark:border-white/10">Skip to gallery</a>
+    <nav class="fixed top-6 left-1/2 -translate-x-1/2 z-50 rounded-full px-5 py-3 w-[95%] md:w-[90%] max-w-6xl border border-neutral-200 dark:border-neutral-800 bg-white/80 dark:bg-neutral-900/85 backdrop-blur">
+        <div class="flex items-center justify-between">
+            <a href="/" class="flex items-center gap-3 select-none">
+                <span class="inline-block h-6 w-6 rounded-full bg-gradient-to-r from-sky-500 to-violet-500"></span>
+                <span class="text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-neutral-900 to-violet-600 dark:from-white dark:to-violet-400 bg-clip-text text-transparent">{{ site.name }}</span>
+            </a>
+            <div class="hidden md:flex items-center gap-8">
+                <a href="/#gallery" class="text-lg hover:underline underline-offset-4">Explore</a>
+                <a href="/prompt" class="text-lg hover:underline underline-offset-4">Prompts</a>
+                <a href="/#about" class="text-lg hover:underline underline-offset-4">About</a>
+                <a href="/#contact" class="text-lg hover:underline underline-offset-4">Contact</a>
+            </div>
+            <div class="flex items-center gap-2">
+                <button id="themeToggle" class="flex items-center gap-2 rounded-full border border-neutral-300 dark:border-neutral-700 bg-white/80 dark:bg-white/10 px-4 py-2 text-base transition active:scale-95">
+                    <i data-lucide="moon" class="hidden dark:inline h-5 w-5"></i>
+                    <i data-lucide="sun" class="dark:hidden h-5 w-5"></i>
+                    <span class="hidden sm:inline">Theme</span>
+                </button>
+                <button id="menuToggle" class="md:hidden flex items-center gap-2 rounded-full border border-neutral-300 dark:border-neutral-700 bg-white/80 dark:bg-white/10 px-4 py-2 text-base transition active:scale-95" aria-expanded="false">
+                    <span id="menuIconOpen" class="inline-flex"><i data-lucide="menu" class="h-5 w-5"></i></span>
+                    <span id="menuIconClose" class="hidden"><i data-lucide="x" class="h-5 w-5"></i></span>
+                    <span>Menu</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div id="mobileMenu" class="hidden fixed inset-0 z-40 flex items-start justify-center pt-28 bg-white/90 dark:bg-neutral-900/90 backdrop-blur menu-transition">
+        <div class="w-[92%] max-w-2xl rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white/90 dark:bg-neutral-900/90 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <div class="text-2xl font-extrabold bg-gradient-to-r from-neutral-900 to-violet-600 dark:from-white dark:to-violet-400 bg-clip-text text-transparent">Menu</div>
+                <button id="closeMenu" class="flex items-center justify-center w-10 h-10 rounded-full border border-neutral-300 dark:border-neutral-700 transition active:scale-95">
+                    <i data-lucide="x" class="h-5 w-5"></i>
+                </button>
+            </div>
+            <div class="flex flex-col gap-3">
+                <a href="/#gallery" class="w-full text-center px-4 py-3 rounded-xl border border-neutral-200 dark:border-neutral-800 transition hover:-translate-y-0.5 active:scale-95">Explore</a>
+                <a href="/prompt" class="w-full text-center px-4 py-3 rounded-xl border border-neutral-200 dark:border-neutral-800 transition hover:-translate-y-0.5 active:scale-95">Prompts</a>
+                <a href="/#about" class="w-full text-center px-4 py-3 rounded-xl border border-neutral-200 dark:border-neutral-800 transition hover:-translate-y-0.5 active:scale-95">About</a>
+                <a href="/#contact" class="w-full text-center px-4 py-3 rounded-xl border border-neutral-200 dark:border-neutral-800 transition hover:-translate-y-0.5 active:scale-95">Contact</a>
+            </div>
+        </div>
+    </div>
+
+    <div id="alerts" class="fixed top-24 right-4 z-[70] flex flex-col gap-2"></div>
+
+    {% block content %}{% endblock %}
+    <section class="py-16 text-center">
+        <h2 class="text-3xl font-extrabold mb-8">Special Thanks</h2>
+        <div class="marquee-container">
+            <div class="marquee">
+                {% for person in special_thanks_list %}
+                <div class="marquee-item">
+                    <div class="marquee-item-container w-auto gap-4">
+                        <img src="{{ person.image }}" alt="{{ person.name }}" class="w-12 h-12 rounded-lg">
+                        <span class="text-lg font-bold">{{ person.name }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <footer class="border-t border-neutral-200 dark:border-neutral-800 bg-white/70 dark:bg-neutral-900/60 backdrop-blur">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+            <div class="flex flex-col sm:flex-row items-center justify-between text-base text-neutral-600 dark:text-neutral-400 gap-4 sm:gap-0">
+                <div>© <span id="year"></span> {{ meta.title }}</div>
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                    <span class="text-sm text-neutral-500 dark:text-neutral-400">Developed by Ahmed Negm</span>
+                    <div class="flex items-center gap-3">
+                        <a href="https://ahmed-negm.pages.dev" target="_blank" rel="noopener" class="inline-flex items-center gap-2 rounded-full border border-neutral-300 dark:border-neutral-700 bg-white/80 dark:bg-white/10 px-3 py-2 text-base">
+                            <i data-lucide="globe" class="h-5 w-5"></i>
+                            <span>Website</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="{{ url_for('static', filename='main.js') }}"></script>
+</body>
+</html>
